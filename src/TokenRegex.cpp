@@ -61,6 +61,6 @@ void init_regex_map()
     // ±‚≈∏
     regex_map[TokenKind::WHITESPACE] = regex(R"([ \t\n\r]+)");
     regex_map[TokenKind::COMMENT] = regex(R"(#.*)");
-    regex_map[TokenKind::UNKNOWN] = regex(R"(.)");      //fallback
+    regex_map[TokenKind::UNKNOWN] = regex(R"(.)");      
 }
 

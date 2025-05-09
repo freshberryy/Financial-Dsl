@@ -25,3 +25,4 @@ inline std::string error_code_to_string(ErrorCode code)
 		return "UNKNOWN_ERROR_CODE";
 	}
 }
+

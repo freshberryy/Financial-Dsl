@@ -46,12 +46,12 @@ void Lexer::advance_at_whitespace(const string& lex)
 				offset++;
 			}
 			col = 1;
-			row++;
+			line++;
 		}
 		else if (c == '\n')
 		{
 			col = 1;
-			row++;
+			line++;
 		}
 		else if (c == '\t')
 		{
@@ -88,7 +88,7 @@ bool Lexer::skip_token(TokenKind kind) const
 
 vector<Token> Lexer::tokenize(const string& s)
 {
-	row = 1;
+	line = 1;
 	col = 1;
 	offset = 0;
 	vector<Token> ret;
@@ -99,16 +99,16 @@ vector<Token> Lexer::tokenize(const string& s)
 
 		if (lexeme.size() > 256)
 		{
-			logger.log(ErrorCode::LEXER_OVERLONG_TOKEN, row, col);
-			ret.emplace_back(kind, lexeme.substr(0, 5), row, col);
+			logger.log(ErrorCode::LEXER_OVERLONG_TOKEN, line, col);
+			ret.emplace_back(kind, lexeme.substr(0, 5), line, col);
 			advance(lexeme.size());
 			continue;
 		}
 
 		if (kind == TokenKind::UNKNOWN || lexeme.empty())
 		{
-			logger.log(ErrorCode::LEXER_UNKNOWN_TOKEN, row, col);
-			ret.emplace_back(kind, lexeme, row, col);
+			logger.log(ErrorCode::LEXER_UNKNOWN_TOKEN, line, col);
+			ret.emplace_back(kind, lexeme, line, col);
 			advance(lexeme.size());
 			continue;
 		}
@@ -123,8 +123,8 @@ vector<Token> Lexer::tokenize(const string& s)
 		{
 			if (lexeme[0] == '.' || lexeme.back() == '.')
 			{
-				logger.log(ErrorCode::LEXER_INVALID_NUMBER, row, col);
-				ret.emplace_back(kind, lexeme, row, col);
+				logger.log(ErrorCode::LEXER_INVALID_NUMBER, line, col);
+				ret.emplace_back(kind, lexeme, line, col);
 				advance(lexeme.size());
 				continue;
 			}
@@ -134,18 +134,18 @@ vector<Token> Lexer::tokenize(const string& s)
 		{
 			if (count(lexeme.begin(), lexeme.end(), '"') % 2 == 1)
 			{
-				logger.log(ErrorCode::LEXER_UNCLOSED_STRING, row, col);
-				ret.emplace_back(kind, lexeme, row, col);
+				logger.log(ErrorCode::LEXER_UNCLOSED_STRING, line, col);
+				ret.emplace_back(kind, lexeme, line, col);
 				advance(lexeme.size());
 				continue;
 			}
 		}
 
 	
-		ret.emplace_back(kind, lexeme, row, col);
+		ret.emplace_back(kind, lexeme, line, col);
 		advance(lexeme.size());
 		
 	}
-	ret.emplace_back(TokenKind::END_OF_FILE, "", row, col);
+	ret.emplace_back(TokenKind::END_OF_FILE, "", line, col);
 	return ret;
 }

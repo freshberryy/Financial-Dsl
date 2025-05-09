@@ -27,7 +27,7 @@ public:
 	std::vector<std::string> logs;
 
 private:
-	int row = 1, col = 1, offset = 0, tab_width = 4;
+	int line = 1, col = 1, offset = 0, tab_width = 4;
 	
 
 	Logger logger;

@@ -19,6 +19,7 @@ bool TokenStream::eof() const
 	return idx >= tokens.size();
 }
 
+//현재 토큰 반환만, 소비 x
 const Token& TokenStream::peek()
 {
 	if (eof())
@@ -29,6 +30,17 @@ const Token& TokenStream::peek()
 	return tokens[idx];
 }
 
+const Token& TokenStream::peek(int offset) 
+{
+	if (idx + offset >= tokens.size())
+	{
+		logger.log(ErrorCode::PARSER_TOKEN_STREAM_OVERFLOW, getLine(), getCol());
+		throw invalid_argument("토큰 스트림 오버플로우");
+	}
+	return tokens[idx + offset];
+}
+
+//현재 토큰 반환 후 idx++, 소비 o
 const Token& TokenStream::next()
 {
 	if (eof())
@@ -39,6 +51,7 @@ const Token& TokenStream::next()
 	return tokens[idx++];
 }
 
+//기대한 토큰이면 반환 후 idx++, 소비 o
 const Token& TokenStream::expect(TokenKind kind)
 {
 	if (eof())
@@ -58,6 +71,7 @@ const Token& TokenStream::expect(TokenKind kind)
 	return ret;
 }
 
+//기대한 토큰이면 반환 후 idx++, 소비 o
 bool TokenStream::match(TokenKind kind)
 {
 	if (!eof() && tokens[idx].kind == kind)
@@ -66,4 +80,11 @@ bool TokenStream::match(TokenKind kind)
 		return true;
 	}
 	return false;
+}
+
+//직전 토큰 반환, 소비 x
+const Token& TokenStream::previous()
+{
+	if (idx == 0) return tokens[0];
+	return tokens[idx - 1];
 }

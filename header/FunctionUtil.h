@@ -1,17 +1,21 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 #include "Type.h"
 #include "Stmt.h"
+#include "ASTNode.h"
 
 class Param;
 
-class FunctionPrototype
+class FunctionPrototype : public ASTNode
 {
 public:
-	FunctionPrototype(std::string n, std::vector<Param*>p, Type rt) : name(n), params(p),  return_type(rt){}
-
-
+	FunctionPrototype(std::string n, std::vector<Param*>p, Type rt, int line, int col) : ASTNode(line, col), name(n), params(p),  return_type(rt){}
+	std::string to_string() const;
+	void dump(std::ostream& os, int indent = 0) const;
 	~FunctionPrototype();
 
 private:
@@ -20,12 +24,13 @@ private:
 	Type return_type;
 };
 
-class Param
+class Param : public ASTNode
 {
 public:
-	Param(Type t, std::string name): type(t), name(name){}
+	Param(Type t, std::string name, int line, int col):ASTNode(line, col), type(t), name(name){}
 
-
+	std::string to_string() const;
+	void dump(std::ostream& os, int indent = 0) const;
 private:
 	Type type;
 	std::string name;

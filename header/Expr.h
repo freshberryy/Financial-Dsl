@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
 #include "ASTNode.h"
 
 class Expr : public ASTNode
@@ -11,23 +14,82 @@ public:
 
 	virtual ~Expr();
 
-	virtual std::string to_string() = 0;
-	virtual std::string get_type() = 0;
+	virtual std::string get_type() const = 0;
 
 };
 
-class LiteralExpr : public Expr
+class IntLiteralExpr : public Expr
 {
 public:
-	LiteralExpr(std::string v, std::string t, int line, int col) : Expr(line, col), value(v), type(t) {}
+	IntLiteralExpr(const std::string& v, int line, int col)
+		: Expr(line, col), value(v)
+	{
+	}
 
-	std::string to_string() const;
+	std::string to_string()const;
 
 	std::string get_type()const;
 
+	void dump(std::ostream& os, int indent = 0) const;
+
 private:
-	std::string value, type;
+	std::string value;
 };
+
+class FloatLiteralExpr : public Expr
+{
+public:
+	FloatLiteralExpr(const std::string& v, int line, int col)
+		: Expr(line, col), value(v)
+	{
+	}
+
+	std::string to_string()const;
+
+	std::string get_type()const;
+
+	void dump(std::ostream& os, int indent = 0) const;
+
+private:
+	std::string value;
+};
+
+class StringLiteralExpr : public Expr
+{
+public:
+	StringLiteralExpr(const std::string& v, int line, int col)
+		: Expr(line, col), value(v)
+	{
+	}
+
+	std::string to_string()const;
+
+	std::string get_type()const;
+
+	void dump(std::ostream& os, int indent = 0) const;
+
+private:
+	std::string value;
+};
+
+class BoolLiteralExpr : public Expr
+{
+public:
+	BoolLiteralExpr(const std::string& v, int line, int col)
+		: Expr(line, col), value(v)
+	{
+	}
+
+	std::string to_string()const;
+
+	std::string get_type()const;
+
+	void dump(std::ostream& os, int indent = 0) const;
+
+private:
+	std::string value;
+};
+
 
 class IdentifierExpr : public Expr
 {
@@ -37,6 +99,8 @@ public:
 	std::string to_string() const;
 
 	std::string get_type()const;
+
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	std::string name;
@@ -52,6 +116,8 @@ public:
 	std::string to_string() const;
 
 	std::string get_type()const;
+
+	void dump(std::ostream& os, int indent = 0) const;
 private:
 	Expr* operand;
 	std::string op;
@@ -68,6 +134,8 @@ public:
 
 	std::string get_type()const;
 
+	void dump(std::ostream& os, int indent = 0) const;
+
 private:
 	Expr* lhs;
 	Expr* rhs;
@@ -82,38 +150,63 @@ public:
 	~AssignExpr();
 
 	std::string to_string() const;
-
+	std::string get_type()const;
+	void dump(std::ostream& os, int indent = 0) const;
 private:
 	Expr* lhs;
 	Expr* rhs;
 };
 
-class ArrayAccessExpr : public Expr
+class Array1DAccessExpr : public Expr
 {
 public:
-	ArrayAccessExpr(Expr* base, const std::vector<Expr*>& indices, int line, int col) : Expr(line, col), base(base), indices(std::move(indices)) {}
+	Array1DAccessExpr(Expr* base, Expr* index, int line, int col)
+		: Expr(line, col), base(base), index(index)
+	{
+	}
 
-	~ArrayAccessExpr();
+	~Array1DAccessExpr();
 
-	std::string to_string() const;
-
-
+	std::string to_string() const override;
+	std::string get_type() const override;
+	void dump(std::ostream& os, int indent = 0) const override;
 
 private:
 	Expr* base;
-	std::vector<Expr*>indices;
+	Expr* index;
+};
+
+class Array2DAccessExpr : public Expr
+{
+public:
+	Array2DAccessExpr(Expr* base, Expr* index1, Expr* index2, int line, int col)
+		: Expr(line, col), base(base), index1(index1), index2(index2)
+	{
+	}
+
+	~Array2DAccessExpr();
+
+	std::string to_string() const override;
+	std::string get_type() const override;
+	void dump(std::ostream& os, int indent = 0) const override;
+
+private:
+	Expr* base;
+	Expr* index1;
+	Expr* index2;
 };
 
 class FunctionCallExpr : public Expr
 {
 public:
-	FunctionCallExpr(Expr* callee, const std::vector<Expr*>& args, int line, int col) : Expr(line, col), callee(callee), args(std::move(args)){}
+	FunctionCallExpr(Expr* callee, const std::vector<Expr*>& args, int line, int col) : Expr(line, col), callee(callee), args(args){}
 
 	~FunctionCallExpr();
 
 	std::string to_string() const;
 
 	std::string get_type()const;
+	void dump(std::ostream& os, int indent = 0) const;
 private:
 	Expr* callee;
 	std::vector<Expr*> args;

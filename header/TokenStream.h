@@ -18,12 +18,15 @@ public:
 	bool eof() const;
 
 	const Token& peek();
+	const Token& peek(int offset) ;
 
 	const Token& next();
 
 	const Token& expect(TokenKind);
 
 	bool match(TokenKind);
+
+	const Token& previous();
 
 private:
 	std::vector<Token> tokens;

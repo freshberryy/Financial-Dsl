@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
 #include "ASTNode.h"
 #include "Type.h"
 #include "Expr.h"
@@ -14,7 +17,6 @@ public:
 	Stmt() {}
 	Stmt(int line, int col) : ASTNode(line, col) {}
 	virtual ~Stmt();
-	virtual std::string to_string() const = 0;
 
 	Stmt(const Stmt&) = delete;
 	Stmt& operator=(const Stmt&) = delete;
@@ -35,6 +37,7 @@ public:
 	ExprStmt& operator=(const ExprStmt&) = delete;
 	ExprStmt(ExprStmt&&) = delete;
 	ExprStmt& operator=(ExprStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	Expr* expr;
@@ -43,7 +46,7 @@ private:
 class VarDeclStmt : public Stmt
 {
 public:
-	VarDeclStmt(Type type, std::string name, Expr* init, int line, int col)
+	VarDeclStmt(Type* type, std::string name, Expr* init, int line, int col)
 		: Stmt(line, col), type(type), name(name), init(init)
 	{
 	}
@@ -55,9 +58,10 @@ public:
 	VarDeclStmt& operator=(const VarDeclStmt&) = delete;
 	VarDeclStmt(VarDeclStmt&&) = delete;
 	VarDeclStmt& operator=(VarDeclStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
-	Type type;
+	Type* type;
 	std::string name;
 	Expr* init;
 };
@@ -74,6 +78,7 @@ public:
 	ReturnStmt& operator=(const ReturnStmt&) = delete;
 	ReturnStmt(ReturnStmt&&) = delete;
 	ReturnStmt& operator=(ReturnStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	Expr* expr;
@@ -89,6 +94,7 @@ public:
 	BreakStmt& operator=(const BreakStmt&) = delete;
 	BreakStmt(BreakStmt&&) = delete;
 	BreakStmt& operator=(BreakStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 };
 
 class ContinueStmt : public Stmt
@@ -101,6 +107,7 @@ public:
 	ContinueStmt& operator=(const ContinueStmt&) = delete;
 	ContinueStmt(ContinueStmt&&) = delete;
 	ContinueStmt& operator=(ContinueStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 };
 
 class IfStmt : public Stmt
@@ -118,6 +125,7 @@ public:
 	IfStmt& operator=(const IfStmt&) = delete;
 	IfStmt(IfStmt&&) = delete;
 	IfStmt& operator=(IfStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	Expr* condition;
@@ -138,6 +146,7 @@ public:
 	WhileStmt& operator=(const WhileStmt&) = delete;
 	WhileStmt(WhileStmt&&) = delete;
 	WhileStmt& operator=(WhileStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	Expr* condition;
@@ -159,6 +168,7 @@ public:
 	ForStmt& operator=(const ForStmt&) = delete;
 	ForStmt(ForStmt&&) = delete;
 	ForStmt& operator=(ForStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
 
 private:
 	Expr* init;
@@ -170,9 +180,10 @@ private:
 class BlockStmt : public Stmt
 {
 public:
-	BlockStmt(const std::vector<Stmt*>& st, int line, int col)
-		: Stmt(line, col), statements(st)
+	BlockStmt(int line, int col)
+		: Stmt(line, col)
 	{
+		stmts.clear();
 	}
 	std::string to_string() const override;
 
@@ -182,9 +193,11 @@ public:
 	BlockStmt& operator=(const BlockStmt&) = delete;
 	BlockStmt(BlockStmt&&) = delete;
 	BlockStmt& operator=(BlockStmt&&) = delete;
+	void dump(std::ostream& os, int indent = 0) const;
+	void add_stmt(Stmt* stmt);
 
 private:
-	std::vector<Stmt*> statements;
+	std::vector<Stmt*> stmts;
 };
 
 class FuncDeclStmt : public Stmt
@@ -202,7 +215,7 @@ public:
 	FuncDeclStmt& operator=(const FuncDeclStmt&) = delete;
 	FuncDeclStmt(FuncDeclStmt&&) = delete;
 	FuncDeclStmt& operator=(FuncDeclStmt&&) = delete;
-
+	void dump(std::ostream& os, int indent = 0) const;
 private:
 	FunctionPrototype* prototype;
 	BlockStmt* body;

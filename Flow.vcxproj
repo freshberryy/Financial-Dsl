@@ -133,10 +133,12 @@
     <ClCompile Include="src\FunctionUtil.cpp" />
     <ClCompile Include="src\Lexer.cpp" />
     <ClCompile Include="src\Logger.cpp" />
+    <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Stmt.cpp" />
     <ClCompile Include="src\TokenPriority.cpp" />
     <ClCompile Include="src\TokenRegex.cpp" />
     <ClCompile Include="src\TokenStream.cpp" />
+    <ClCompile Include="src\Type.cpp" />
     <ClCompile Include="src\소스.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +149,7 @@
     <ClInclude Include="header\FunctionUtil.h" />
     <ClInclude Include="header\Lexer.h" />
     <ClInclude Include="header\Logger.h" />
+    <ClInclude Include="header\Parser.h" />
     <ClInclude Include="header\ProgramNode.h" />
     <ClInclude Include="header\Stmt.h" />
     <ClInclude Include="header\Token.h" />

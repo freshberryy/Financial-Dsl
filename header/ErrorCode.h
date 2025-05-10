@@ -46,7 +46,8 @@ enum class ErrorCode
     PARSER_INVALID_FUNCTION_CALL,
     PARSER_CALL_ARGUMENT_COUNT_MISMATCH,
     PARSER_INTERNAL_UNREACHABLE,
-    PARSER_UNKNOWN_ERROR
+    PARSER_UNKNOWN_ERROR,
+    PARSER_EXPECT_IDENTIFIER_FOR_POSTFIX
 
 };
 
@@ -141,6 +142,8 @@ inline std::string error_code_to_string(ErrorCode code)
         return "PARSER_INTERNAL_UNREACHABLE";
     case ErrorCode::PARSER_UNKNOWN_ERROR:
         return "PARSER_UNKNOWN_ERROR";
+    case ErrorCode::PARSER_EXPECT_IDENTIFIER_FOR_POSTFIX:
+        return "PARSER_EXPECT_IDENTIFIER_FOR_POSTFIX";
 
     default:
         return "UNKNOWN_ERROR_CODE";

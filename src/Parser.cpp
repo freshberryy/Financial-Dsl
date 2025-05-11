@@ -25,8 +25,15 @@ ASTNode* Parser::parse_program()
 	return nullptr;
 }
 
+
+
 //Expr
-Expr* Parser::parse_literal()
+Expr* Parser::parse_expr()
+{
+	return parse_primary_expr();
+}
+
+Expr* Parser::parse_primary_expr()
 {
 	const Token& tok = ts->peek();
 
@@ -50,90 +57,97 @@ Expr* Parser::parse_literal()
 		ts->next();
 		return new BoolLiteralExpr(tok.lexeme, tok.line, tok.col);
 	}
-
-	logger.log(ErrorCode::PARSER_INVALID_LITERAL, ts->getLine(), ts->getCol());
-	return nullptr;
-}
-
-
-Expr* Parser::parse_identifier()
-{
-	if (ts->peek().kind != TokenKind::IDENTIFIER)
+	if (tok.kind == TokenKind::IDENTIFIER)
 	{
-		logger.log(ErrorCode::PARSER_EXPECTED_IDENTIFIER, ts->getLine(), ts->getCol());
-		return nullptr;
+		ts->next();
+		return new IdentifierExpr(tok.lexeme, tok.line, tok.col);
 	}
-	Token tok = ts->next();
-	return new IdentifierExpr(tok.lexeme, tok.line, tok.col);
-}
-
-Expr* Parser::parse_primary_expr()
-{
-	Token tok = ts->peek();
-
-	if (tok.kind == TokenKind::INT_LITERAL || tok.kind == TokenKind::FLOAT_LITERAL || tok.kind == TokenKind::STRING_LITERAL || tok.kind == TokenKind::BOOL_LITERAL)
-	{
-		return parse_literal();
-	}
-
-	if (tok.kind == TokenKind::IDENTIFIER) return parse_identifier();
-
 	if (tok.kind == TokenKind::LPAREN)
 	{
 		ts->next();
 		Expr* expr = parse_expr();
-		if (!ts->match(TokenKind::RPAREN))
+		
+		if (ts->peek().kind != TokenKind::RPAREN)
 		{
-			logger.log(ErrorCode::PARSER_UNCLOSED_PAREN, ts->getLine(), ts->getCol());
-			return nullptr;
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("오른쪽 소괄호 누락", ts->get_line(), ts->get_col());
 		}
+		ts->next();
 		return expr;
 	}
-	logger.log(ErrorCode::PARSER_EXPECTED_EXPRESSION, tok.line, tok.col);
-	return nullptr;
+	logger.log(tok.line, tok.col);
+	throw ParserException("primary_expr 시작 토큰이 아님", tok.line, tok.col);
 }
+
 
 Expr* Parser::parse_postfix_expr()
 {
-	if (ts->peek().kind != TokenKind::IDENTIFIER)
-	{
-		logger.log(ErrorCode::PARSER_EXPECT_IDENTIFIER_FOR_POSTFIX, ts->getLine(), ts->getCol());
-		throw std::invalid_argument("postfix_expr는 식별자로 시작해야 합니다.");
-	}
+	Expr* expr = parse_primary_expr();
 
-	Expr* expr = parse_identifier(); 
-	const Token& tok = ts->peek();
+	//괄호를 가리킬 것으로 예상
+	const Token& tk = ts->peek();
 
-	if (tok.kind == TokenKind::LPAREN)
+	if (tk.kind == TokenKind::LPAREN)
 	{
+		//식을 가리킬 것으로 예상
 		ts->next();
-		vector<Expr*> args =  parse_arg_list();
-		//parse_arg_list()에서 반드시 괄호 안의 식을 모두 소비해야 함.
-		ts->expect(TokenKind::RPAREN);
-
-		return new FunctionCallExpr(expr, args, tok.line, tok.col);
-	}
-
-	if (ts->peek().kind == TokenKind::LBRACKET)
-	{
-		Token lb = ts->next();
-		Expr* idx1 = parse_expr();
-		ts->expect(TokenKind::RBRACKET);
-
+		vector<Expr*> args = parse_arg_list();
+		if (ts->peek().kind != TokenKind::RPAREN)
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("오른쪽 소괄호 누락", ts->get_line(), ts->get_col());
+		}
+		ts->next();
+		if (ts->peek().kind == TokenKind::LPAREN)
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("연속된 함수 호출은 허용되지 않음", ts->get_line(), ts->get_col());
+		}
 		if (ts->peek().kind == TokenKind::LBRACKET)
 		{
-			ts->next();
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("함수에 대한 배열 접근은 허용되지 않음", ts->get_line(), ts->get_col());
+		}
+		return new FunctionCallExpr(expr, args, expr->get_location().first, expr->get_location().second);
+	}
+
+	if (tk.kind == TokenKind::LBRACKET)
+	{
+		ts->next();
+		Expr* idx1 = parse_expr();
+		if (!ts->match(TokenKind::RBRACKET))
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("오른쪽 대괄호 누락", ts->get_line(), ts->get_col());
+		}
+		if (ts->peek().kind == TokenKind::LBRACKET)
+		{
 			Expr* idx2 = parse_expr();
-			ts->expect(TokenKind::RBRACKET);
-			return new Array2DAccessExpr(expr, idx1, idx2, lb.line, lb.col);
+			if (!idx2)
+			{
+				logger.log(ts->get_line(), ts->get_col());
+				throw ParserException("배열 인덱스 누락", ts->get_line(), ts->get_col());
+			}
+			if (!ts->match(TokenKind::RBRACKET))
+			{
+				logger.log(ts->get_line(), ts->get_col());
+				throw ParserException("오른쪽 대괄호 누락", ts->get_line(), ts->get_col());
+			}
+			return new Array2DAccessExpr(expr, idx1, idx2, expr->get_location().first, expr->get_location().second);
+		}
+		else if(ts->eof())
+		{
+			return new Array1DAccessExpr(expr, idx1, expr->get_location().first, expr->get_location().second);
 		}
 		else
 		{
-			return new Array1DAccessExpr(expr, idx1, lb.line, lb.col);
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("3차원 이상 배열은 허용되지 않음", ts->get_line(), ts->get_col());
 		}
 	}
 	return expr;
 }
+
 
 vector<Expr*> Parser::parse_arg_list()
 {
@@ -141,160 +155,51 @@ vector<Expr*> Parser::parse_arg_list()
 
 	if (ts->peek().kind == TokenKind::RPAREN) return args;
 
-	int cnt = 0;
 
-	while (true)
+	if (ts->peek().kind == TokenKind::COMMA)
 	{
-		Expr* arg = parse_expr();
-		if (!arg)
-		{
-			logger.log(ErrorCode::PARSER_INVALID_ARG_LIST, ts->getLine(), ts->getCol());
-			return {};
-		}
-		args.push_back(arg);
-
-		if (!ts->match(TokenKind::COMMA)) break;
-		cnt++;
-
-		//인자가 255개 초과면 오류
-		if (cnt > 255)
-		{
-			logger.log(ErrorCode::PARSER_CALL_ARGUMENT_COUNT_MISMATCH, ts->getLine(), ts->getCol());
-			args.pop_back();
-			break;
-		}
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("인자 목록이 콤마로 시작", ts->get_line(), ts->get_col());
 	}
 
+	//식 하나 push
+	args.push_back(parse_expr());
+
+	//콤마 있으니 루프
+	while (ts->match(TokenKind::COMMA))
+	{
+		//콤마 다음 식으로
+		if (ts->peek().kind == TokenKind::COMMA)
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("인자 없이 연속된 콤마", ts->get_line(), ts->get_col());
+		}
+		//식 소비
+		args.push_back(parse_expr());
+	}
 	return args;
 }
 
+
 Expr* Parser::parse_unary_expr()
 {
-	if (unary_depth >= 256)
-	{
-		logger.log(ErrorCode::PARSER_INTERNAL_UNREACHABLE, ts->getLine(), ts->getCol());
-		return nullptr;
-	}
-	unary_depth++;
-	Expr* node;
-	const Token& tok = ts->peek();
-	if (tok.kind == TokenKind::PLUS || tok.kind == TokenKind::MINUS || tok.kind == TokenKind::NOT)
+	const Token& tk = ts->peek();
+
+	if (tk.kind == TokenKind::PLUS || tk.kind == TokenKind::MINUS || tk.kind == TokenKind::NOT)
 	{
 		ts->next();
-		node = parse_unary_expr();
-		if (!node)
+
+		Expr* expr = parse_unary_expr();
+		if (!expr)
 		{
-			logger.log(ErrorCode::PARSER_INVALID_UNARY_EXPR, ts->getLine(), ts->getCol());
-			unary_depth--;
-			return nullptr;
+			logger.log(tk.line, tk.col);
+			throw ParserException("단항 연산자 뒤에 표현식이 없음", tk.line, tk.col);
 		}
-		unary_depth--;
-		return new UnaryExpr(node, token_kind_to_string(tok.kind), tok.line, tok.col);
+		return new UnaryExpr(expr, tk.lexeme, tk.line, tk.col);
 	}
 	else
 	{
-		unary_depth--;
-		return parse_primary_expr();
+		return parse_postfix_expr();
 	}
 }
 
-Expr* Parser::parse_mul_expr()
-{
-	Expr* lhs = parse_unary_expr();
-	if (!lhs)
-	{
-		logger.log(ErrorCode::PARSER_INVALID_BINARY_EXPR, ts->getLine(), ts->getCol());
-		return nullptr;
-	}
-	Expr* rhs;
-
-	while (ts->peek().kind == TokenKind::MUL || ts->peek().kind == TokenKind::DIV || ts->peek().kind == TokenKind::MOD)
-	{
-		const Token& op = ts->peek();
-		ts->next();
-		rhs = parse_unary_expr();
-		if (!rhs || !lhs)
-		{
-			logger.log(ErrorCode::PARSER_INVALID_BINARY_EXPR, ts->getLine(), ts->getCol());
-			return nullptr;
-		}
-		lhs = new BinaryExpr(lhs, op.lexeme, rhs, op.line, op.col);
-	}
-	return lhs;
-}
-
-Expr* Parser::parse_add_expr()
-{
-	Expr* lhs = parse_mul_expr();
-	if (!lhs)
-	{
-		logger.log(ErrorCode::PARSER_INVALID_BINARY_EXPR, ts->getLine(), ts->getCol());
-		return nullptr;
-	}
-	while (ts->peek().kind == TokenKind::PLUS || ts->peek().kind == TokenKind::MINUS)
-	{
-		const Token& op = ts->peek();
-		ts->next();
-		Expr* rhs = parse_mul_expr();
-		if (!rhs || !lhs)
-		{
-			logger.log(ErrorCode::PARSER_INVALID_BINARY_EXPR, ts->getLine(), ts->getCol());
-			return nullptr;
-		}
-		lhs = new BinaryExpr(lhs, op.lexeme, rhs, op.line, op.col);
-	}
-	return lhs;
-}
-
-
-Expr* Parser::parse_expr()
-{
-	//식에 속한 토큰을 모두 소비해야 함.
-	return parse_add_expr();
-}
-
-
-//Type
-Type* Parser::parse_type()
-{
-	Token tok = ts->peek();
-	if (tok.kind != TokenKind::KW_INT && tok.kind != TokenKind::KW_FLOAT && tok.kind != TokenKind::KW_STRING && tok.kind != TokenKind::KW_BOOL)
-	{
-		logger.log(ErrorCode::PARSER_EXPECTED_TYPE_KEYWORD, ts->getLine(), ts->getCol());
-		return nullptr;
-	}
-	ts->next();
-	string type_s = tok.lexeme;
-	int dim = 0;
-
-	while (ts->match(TokenKind::LBRACKET))
-	{
-		if (!ts->match(TokenKind::RBRACKET))
-		{
-			logger.log(ErrorCode::PARSER_UNCLOSED_ARRAY_ACCESS, ts->getLine(), ts->getCol());
-			return nullptr;
-		}
-		dim++;
-		type_s += "[]";
-	}
-
-	if (dim > 2)
-	{
-		logger.log(ErrorCode::PARSER_ARRAY_DECL_INVALID_DIMENSION, ts->getLine(), ts->getCol());
-		return nullptr;
-	}
-	Type* node = new Type(type_s, dim, ts->getLine(), ts->getCol());
-
-	return node;
-}
-
-//util
-bool Parser::is_semicolon()
-{
-	if (!ts->match(TokenKind::SEMICOLON))
-	{
-		logger.log(ErrorCode::PARSER_EXPECTED_SEMICOLON, ts->getLine(), ts->getCol());
-		return false;
-	}
-	return true;
-}

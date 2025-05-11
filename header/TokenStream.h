@@ -11,9 +11,9 @@ class TokenStream
 public:
 	TokenStream(const vector<Token>& v) : tokens(v) {}
 
-	int getLine() const;
+	int get_line() const;
 
-	int getCol() const;
+	int get_col() const;
 
 	bool eof() const;
 

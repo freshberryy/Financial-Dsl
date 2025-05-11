@@ -24,8 +24,23 @@ string Logger::log(ErrorCode code, int row, int col)
 
 	ss << "[에러] " << get_current_time()
 		<< " | " << error_code_to_string(code)
-		<< " | row " << row << ", column " << col
+		<< " | line " << row << ", column " << col
 		<< endl;
+
+	string ret = ss.str();
+
+	cerr << ret;
+
+	return ret;
+}
+
+string Logger::log(int line, int col)
+{
+	stringstream ss;
+
+	ss << "[에러] " << get_current_time()
+		<< " | line " << line << ", column " << col
+		<< " | ";
 
 	string ret = ss.str();
 

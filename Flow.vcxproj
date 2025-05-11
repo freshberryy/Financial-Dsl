@@ -150,6 +150,8 @@
     <ClInclude Include="header\Lexer.h" />
     <ClInclude Include="header\Logger.h" />
     <ClInclude Include="header\Parser.h" />
+    <ClInclude Include="header\ParserException.h" />
+    <ClInclude Include="header\ParserTests.h" />
     <ClInclude Include="header\ProgramNode.h" />
     <ClInclude Include="header\Stmt.h" />
     <ClInclude Include="header\Token.h" />

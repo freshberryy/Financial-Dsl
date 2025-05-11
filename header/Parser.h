@@ -8,6 +8,7 @@
 #include "Expr.h"
 #include "Token.h"
 #include "Type.h"
+#include "ParserException.h"
 
 class ProgramNode;
 
@@ -29,7 +30,13 @@ public:
 	Expr* parse_unary_expr();
 	Expr* parse_mul_expr();
 	Expr* parse_add_expr();
+	Expr* parse_relational_expr();
+	Expr* parse_equality_expr();
+	Expr* parse_and_expr();
+	Expr* parse_or_expr();
 	Expr* parse_expr();
+	Expr* parse_lhs();
+	Expr* parse_assign_expr();
 
 	Type* parse_type();
 

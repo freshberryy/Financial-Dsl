@@ -2,13 +2,13 @@
 
 using namespace std;
 
-int TokenStream::getLine() const
+int TokenStream::get_line()  const
 {
 	if (eof()) return -1;
 	return tokens[idx].line;
 }
 
-int TokenStream::getCol() const
+int TokenStream::get_col() const
 {
 	if (eof()) return -1;
 	return tokens[idx].col;
@@ -24,7 +24,7 @@ const Token& TokenStream::peek()
 {
 	if (eof())
 	{
-		logger.log(ErrorCode::PARSER_TOKEN_STREAM_OVERFLOW, getLine(), getCol());
+		logger.log(get_line(), get_col());
 		throw invalid_argument("토큰 스트림 오버플로우");
 	}
 	return tokens[idx];
@@ -34,7 +34,7 @@ const Token& TokenStream::peek(int offset)
 {
 	if (idx + offset >= tokens.size())
 	{
-		logger.log(ErrorCode::PARSER_TOKEN_STREAM_OVERFLOW, getLine(), getCol());
+		logger.log(get_line(), get_col());
 		throw invalid_argument("토큰 스트림 오버플로우");
 	}
 	return tokens[idx + offset];
@@ -45,7 +45,7 @@ const Token& TokenStream::next()
 {
 	if (eof())
 	{
-		logger.log(ErrorCode::PARSER_TOKEN_STREAM_OVERFLOW, getLine(), getCol());
+		logger.log(get_line(), get_col());
 		throw invalid_argument("토큰 스트림 오버플로우");
 	}
 	return tokens[idx++];
@@ -56,13 +56,13 @@ const Token& TokenStream::expect(TokenKind kind)
 {
 	if (eof())
 	{
-		logger.log(ErrorCode::PARSER_TOKEN_STREAM_OVERFLOW, getLine(), getCol());
+		logger.log(get_line(), get_col());
 		throw invalid_argument("토큰 스트림 오버플로우");
 	}
 
 	if (tokens[idx].kind != kind)
 	{
-		logger.log(ErrorCode::PARSER_UNEXPECTED_TOKEN, getLine(), getCol());
+		logger.log(get_line(), get_col());
 		throw invalid_argument("예상한 토큰이 아님");
 	}
 

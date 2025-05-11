@@ -256,3 +256,58 @@ void FunctionCallExpr::dump(ostream& os, int indent) const
 	}
 }
 
+bool IntLiteralExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool FloatLiteralExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool StringLiteralExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool BoolLiteralExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool UnaryExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool BinaryExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool AssignExpr::can_be_lhs() const
+{
+	return false;
+}
+
+bool FunctionCallExpr::can_be_lhs() const
+{
+	return false;
+}
+
+
+bool IdentifierExpr::can_be_lhs() const
+{
+	return true;
+}
+
+bool Array1DAccessExpr::can_be_lhs() const
+{
+	return true;
+}
+
+bool Array2DAccessExpr::can_be_lhs() const
+{
+	return true;
+}

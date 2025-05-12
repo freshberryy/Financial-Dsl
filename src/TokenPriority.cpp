@@ -13,13 +13,12 @@ void init_token_priority_map()
     token_priority_map[TokenKind::KW_IF] = 1;
     token_priority_map[TokenKind::KW_VOID] = 1;
     token_priority_map[TokenKind::KW_ELSE] = 1;
-    token_priority_map[TokenKind::KW_IF_ELSE] = 1;
+    token_priority_map[TokenKind::KW_ELSE_IF] = 1;
     token_priority_map[TokenKind::KW_FOR] = 1;
     token_priority_map[TokenKind::KW_WHILE] = 1;
     token_priority_map[TokenKind::KW_RETURN] = 1;
     token_priority_map[TokenKind::KW_BREAK] = 1;
     token_priority_map[TokenKind::KW_CONTINUE] = 1;
-    token_priority_map[TokenKind::KW_FUNC] = 1;
 
     // ¿¬»êÀÚ 
     token_priority_map[TokenKind::PLUS] = 2;

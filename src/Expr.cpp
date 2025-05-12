@@ -311,3 +311,24 @@ bool Array2DAccessExpr::can_be_lhs() const
 {
 	return true;
 }
+
+string VoidExpr::to_string() const
+{
+	return "void";
+}
+
+string VoidExpr::get_type() const
+{
+	return "void";
+}
+
+void VoidExpr::dump(ostream& os, int indent) const
+{
+	os << setw(indent) << ' ';
+	os << "VoidExpr (void)\n";
+}
+
+bool VoidExpr::can_be_lhs() const
+{
+	return false;
+}

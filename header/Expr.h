@@ -264,3 +264,18 @@ private:
 	Expr* callee;
 	std::vector<Expr*> args;
 };
+
+//return; ¿ë
+class VoidExpr : public Expr
+{
+public:
+	VoidExpr(int line, int col) : Expr(line, col) {}
+	std::string to_string() const;
+	bool can_be_lhs() const;
+	std::string get_type()const;
+	void dump(std::ostream& os, int indent = 0) const;
+	VoidExpr(const VoidExpr&) = delete;
+	VoidExpr& operator=(const VoidExpr&) = delete;
+	VoidExpr(VoidExpr&&) = delete;
+	VoidExpr& operator=(VoidExpr&&) = delete;
+};

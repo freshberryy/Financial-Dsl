@@ -10,6 +10,7 @@
 
 class Param;
 
+//함수 시그니처
 class FunctionPrototype : public ASTNode
 {
 public:
@@ -36,6 +37,7 @@ private:
 	std::string name;
 };
 
+//심볼 테이블에 저장되는 시그니처와 스코프
 class FunctionSymbol
 {
 public:

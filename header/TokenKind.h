@@ -7,7 +7,7 @@ using  namespace std;
 enum class TokenKind
 {
 	//키워드
-	KW_INT, KW_FLOAT, KW_BOOL, KW_STRING, KW_IF, KW_VOID, KW_ELSE, KW_IF_ELSE, KW_FOR, KW_WHILE, KW_RETURN, KW_BREAK, KW_CONTINUE, KW_FUNC,
+	KW_INT, KW_FLOAT, KW_BOOL, KW_STRING, KW_IF, KW_VOID, KW_ELSE, KW_ELSE_IF, KW_FOR, KW_WHILE, KW_RETURN, KW_BREAK, KW_CONTINUE, 
 
 	//식별자
 	IDENTIFIER,
@@ -27,67 +27,61 @@ enum class TokenKind
 
 inline const char* token_kind_to_string(TokenKind kind)
 {
-    switch (kind)
-    {
-        // 키워드
-    case TokenKind::KW_INT:        return "KW_INT";
-    case TokenKind::KW_FLOAT:      return "KW_FLOAT";
-    case TokenKind::KW_BOOL:       return "KW_BOOL";
-    case TokenKind::KW_STRING:     return "KW_STRING";
-    case TokenKind::KW_IF:         return "KW_IF";
-    case TokenKind::KW_VOID:       return "KW_VOID";
-    case TokenKind::KW_ELSE:       return "KW_ELSE";
-    case TokenKind::KW_IF_ELSE:    return "KW_IF_ELSE";
-    case TokenKind::KW_FOR:        return "KW_FOR";
-    case TokenKind::KW_WHILE:      return "KW_WHILE";
-    case TokenKind::KW_RETURN:     return "KW_RETURN";
-    case TokenKind::KW_BREAK:      return "KW_BREAK";
-    case TokenKind::KW_CONTINUE:   return "KW_CONTINUE";
-    case TokenKind::KW_FUNC:       return "KW_FUNC";
+	switch (kind)
+	{
+	case TokenKind::KW_INT: return "int";
+	case TokenKind::KW_FLOAT: return "float";
+	case TokenKind::KW_BOOL: return "bool";
+	case TokenKind::KW_STRING: return "string";
+	case TokenKind::KW_IF: return "if";
+	case TokenKind::KW_VOID: return "void";
+	case TokenKind::KW_ELSE: return "else";
+	case TokenKind::KW_ELSE_IF: return "if_else";
+	case TokenKind::KW_FOR: return "for";
+	case TokenKind::KW_WHILE: return "while";
+	case TokenKind::KW_RETURN: return "return";
+	case TokenKind::KW_BREAK: return "break";
+	case TokenKind::KW_CONTINUE: return "continue";
 
-        // 식별자
-    case TokenKind::IDENTIFIER:    return "IDENTIFIER";
+	case TokenKind::IDENTIFIER: return "identifier";
 
-        // 연산자
-    case TokenKind::PLUS:          return "PLUS";
-    case TokenKind::MINUS:         return "MINUS";
-    case TokenKind::MUL:           return "MUL";
-    case TokenKind::DIV:           return "DIV";
-    case TokenKind::MOD:           return "MOD";
-    case TokenKind::EQUAL:         return "EQUAL";
-    case TokenKind::NOT_EQUAL:     return "NOT_EQUAL";
-    case TokenKind::LESS:          return "LESS";
-    case TokenKind::GREATER:       return "GREATER";
-    case TokenKind::LESS_EQUAL:    return "LESS_EQUAL";
-    case TokenKind::GREATER_EQUAL: return "GREATER_EQUAL";
-    case TokenKind::NOT:           return "NOT";
-    case TokenKind::AND:           return "AND";
-    case TokenKind::OR:            return "OR";
-    case TokenKind::ASSIGN:        return "ASSIGN";
+	case TokenKind::PLUS: return "+";
+	case TokenKind::MINUS: return "-";
+	case TokenKind::MUL: return "*";
+	case TokenKind::DIV: return "/";
+	case TokenKind::MOD: return "%";
+	case TokenKind::EQUAL: return "==";
+	case TokenKind::NOT_EQUAL: return "!=";
+	case TokenKind::LESS: return "<";
+	case TokenKind::GREATER: return ">";
+	case TokenKind::LESS_EQUAL: return "<=";
+	case TokenKind::GREATER_EQUAL: return ">=";
+	case TokenKind::NOT: return "!";
+	case TokenKind::AND: return "&&";
+	case TokenKind::OR: return "||";
+	case TokenKind::ASSIGN: return "=";
 
-        // 구두점
-    case TokenKind::LBRACKET:      return "LBRACKET";
-    case TokenKind::RBRACKET:      return "RBRACKET";
-    case TokenKind::LBRACE:        return "LBRACE";
-    case TokenKind::RBRACE:        return "RBRACE";
-    case TokenKind::LPAREN:        return "LPAREN";
-    case TokenKind::RPAREN:        return "RPAREN";
-    case TokenKind::COMMA:         return "COMMA";
-    case TokenKind::SEMICOLON:     return "SEMICOLON";
+	case TokenKind::LBRACKET: return "[";
+	case TokenKind::RBRACKET: return "]";
+	case TokenKind::LBRACE: return "{";
+	case TokenKind::RBRACE: return "}";
+	case TokenKind::LPAREN: return "(";
+	case TokenKind::RPAREN: return ")";
+	case TokenKind::COMMA: return ",";
+	case TokenKind::SEMICOLON: return ";";
 
-        // 리터럴
-    case TokenKind::INT_LITERAL:   return "INT_LITERAL";
-    case TokenKind::FLOAT_LITERAL: return "FLOAT_LITERAL";
-    case TokenKind::BOOL_LITERAL:  return "BOOL_LITERAL";
-    case TokenKind::STRING_LITERAL:return "STRING_LITERAL";
+	case TokenKind::INT_LITERAL: return "int_literal";
+	case TokenKind::FLOAT_LITERAL: return "float_literal";
+	case TokenKind::BOOL_LITERAL: return "bool_literal";
+	case TokenKind::STRING_LITERAL: return "string_literal";
 
-        // 기타
-    case TokenKind::WHITESPACE:    return "WHITESPACE";
-    case TokenKind::COMMENT:       return "COMMENT";
-    case TokenKind::END_OF_FILE:   return "END_OF_FILE";
-    case TokenKind::UNKNOWN:       return "UNKNOWN";
-    }
-    return "UNKNOWN";
+	case TokenKind::END_OF_FILE: return "eof";
+	case TokenKind::WHITESPACE: return "whitespace";
+	case TokenKind::COMMENT: return "comment";
+	case TokenKind::UNKNOWN: return "unknown";
+
+	default: return "invalid_token";
+	}
 }
 
 
@@ -101,13 +95,12 @@ inline TokenKind token_kind_from_string(const string& str)
     if (str == "KW_IF")         return TokenKind::KW_IF;
     if (str == "KW_VOID")       return TokenKind::KW_VOID;
     if (str == "KW_ELSE")       return TokenKind::KW_ELSE;
-    if (str == "KW_IF_ELSE")    return TokenKind::KW_IF_ELSE;
+    if (str == "KW_IF_ELSE")    return TokenKind::KW_ELSE_IF;
     if (str == "KW_FOR")        return TokenKind::KW_FOR;
     if (str == "KW_WHILE")      return TokenKind::KW_WHILE;
     if (str == "KW_RETURN")     return TokenKind::KW_RETURN;
     if (str == "KW_BREAK")      return TokenKind::KW_BREAK;
     if (str == "KW_CONTINUE")   return TokenKind::KW_CONTINUE;
-    if (str == "KW_FUNC")       return TokenKind::KW_FUNC;
 
     // 식별자
     if (str == "IDENTIFIER")    return TokenKind::IDENTIFIER;

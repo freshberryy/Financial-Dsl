@@ -22,8 +22,6 @@ public:
 	ASTNode* parse_program();
 
 
-	Expr* parse_literal();
-	Expr* parse_identifier();
 	Expr* parse_primary_expr();
 	Expr* parse_postfix_expr();
 	std::vector<Expr*> parse_arg_list();
@@ -35,14 +33,17 @@ public:
 	Expr* parse_and_expr();
 	Expr* parse_or_expr();
 	Expr* parse_expr();
-	Expr* parse_lhs();
 	Expr* parse_assign_expr();
 
 	Type* parse_type();
 
-
+	Stmt* parse_expr_stmt();
+	Stmt* parse_var_decl_stmt();
+	Stmt* parse_break_stmt();
+	Stmt* parse_continue_stmt();
+	Stmt* parse_return_stmt();
 	
-	bool is_semicolon();
+	const Token& expect_semicolon();
 
 private:
 

@@ -144,3 +144,579 @@ inline void test_postfix_edge_case()
 		Token(TokenKind::END_OF_FILE, "", 1, 11)
 		});
 }
+
+inline void run_expr_edge_test(const std::string& test_name, const std::vector<Token>& tokens)
+{
+	std::cout << "=== Edge Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_add_expr(); 
+		std::cout << "[FAIL] 예외 없음. AST 출력:\n";
+		expr->dump(std::cout, 0);
+		delete expr;
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[PASS] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+inline void run_expr_dump_test(const std::string& test_name, const std::vector<Token>& tokens)
+{
+	std::cout << "=== Dump Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_add_expr();
+		if (expr)
+		{
+			std::cout << "[PASS] AST 출력:\n";
+			expr->dump(std::cout, 0);
+			delete expr;
+		}
+		else
+		{
+			std::cout << "[FAIL] 반환된 AST가 null\n";
+		}
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[FAIL] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+inline void run_expr_to_string_test(const std::string& test_name,
+	const std::vector<Token>& tokens,
+	const std::string& expected_output)
+{
+	std::cout << "=== to_string Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_add_expr();
+		if (expr)
+		{
+			std::string result = expr->to_string();
+			std::cout << "-기대값: " << expected_output << ", 실제값: " << result << "\n";
+			delete expr;
+		}
+		else
+		{
+			std::cout << "[FAIL] 반환된 AST가 null\n";
+		}
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[FAIL] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+
+inline void test_unary_binary()
+{
+	// 엣지
+	run_expr_edge_test("단항 연산자 뒤 표현식 없음", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::END_OF_FILE, "", 1, 2)
+		});
+
+	run_expr_edge_test("이항 연산자 뒤 표현식 없음", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_expr_edge_test("연속 이항 연산자 (1 + *)", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::MUL, "*", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_expr_edge_test("연속 단항 연산자 끝에 없음", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::MINUS, "-", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_expr_edge_test("괄호 안 비어있음", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::RPAREN, ")", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_expr_edge_test("괄호 닫힘 누락", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::PLUS, "+", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_expr_edge_test("잘못된 토큰 시작", {
+		Token(TokenKind::COMMA, ",", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_expr_edge_test("연속된 *, / 연산자만 존재", {
+		Token(TokenKind::MUL, "*", 1, 1),
+		Token(TokenKind::DIV, "/", 1, 2),
+		Token(TokenKind::MOD, "%", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		});
+
+	run_expr_edge_test("단항 + + 잘못된 연쇄", {
+		Token(TokenKind::PLUS, "+", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::PLUS, "+", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		});
+
+
+	// dump
+	run_expr_dump_test("단항 -1", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_expr_dump_test("이항 1 + 2", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		});
+
+	run_expr_dump_test("곱셈 우선 1 + 2 * 3", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::MUL, "*", 1, 4),
+		Token(TokenKind::INT_LITERAL, "3", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		});
+
+	run_expr_dump_test("우선순위 테스트: (1 + 2) * 3", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::PLUS, "+", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::RPAREN, ")", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::INT_LITERAL, "3", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		});
+
+	run_expr_dump_test("단항 - 붙은 곱셈", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::INT_LITERAL, "2", 1, 2),
+		Token(TokenKind::MUL, "*", 1, 3),
+		Token(TokenKind::INT_LITERAL, "3", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_expr_dump_test("여러 단항 연산자 ---3", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::MINUS, "-", 1, 2),
+		Token(TokenKind::MINUS, "-", 1, 3),
+		Token(TokenKind::INT_LITERAL, "3", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_expr_dump_test("혼합 1 + -2 * 3", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::MINUS, "-", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::MUL, "*", 1, 5),
+		Token(TokenKind::INT_LITERAL, "3", 1, 6),
+		Token(TokenKind::END_OF_FILE, "", 1, 7)
+		});
+
+	run_expr_dump_test("괄호 내부 단항", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::MINUS, "-", 1, 2),
+		Token(TokenKind::INT_LITERAL, "7", 1, 3),
+		Token(TokenKind::RPAREN, ")", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_expr_dump_test("덧셈/뺄셈/곱셈/나눗셈 혼합", {
+		Token(TokenKind::INT_LITERAL, "8", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "6", 1, 3),
+		Token(TokenKind::MUL, "*", 1, 4),
+		Token(TokenKind::INT_LITERAL, "2", 1, 5),
+		Token(TokenKind::MINUS, "-", 1, 6),
+		Token(TokenKind::INT_LITERAL, "1", 1, 7),
+		Token(TokenKind::DIV, "/", 1, 8),
+		Token(TokenKind::INT_LITERAL, "5", 1, 9),
+		Token(TokenKind::END_OF_FILE, "", 1, 10)
+		});
+
+	run_expr_dump_test("괄호로 우선순위 조정", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::PLUS, "+", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::RPAREN, ")", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::LPAREN, "(", 1, 7),
+		Token(TokenKind::INT_LITERAL, "3", 1, 8),
+		Token(TokenKind::MINUS, "-", 1, 9),
+		Token(TokenKind::INT_LITERAL, "4", 1, 10),
+		Token(TokenKind::RPAREN, ")", 1, 11),
+		Token(TokenKind::END_OF_FILE, "", 1, 12)
+		});
+
+	//to_string
+	run_expr_to_string_test("단항 -1", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		}, "-1");
+
+	run_expr_to_string_test("이항 1 + 2", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		}, "1 + 2");
+
+	run_expr_to_string_test("곱셈 우선 1 + 2 * 3", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::MUL, "*", 1, 4),
+		Token(TokenKind::INT_LITERAL, "3", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		}, "1 + 2 * 3");
+
+	run_expr_to_string_test("괄호 표현식 (1 + 2) * 3", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::PLUS, "+", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::RPAREN, ")", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::INT_LITERAL, "3", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		}, "(1 + 2) * 3");
+
+}
+
+inline void run_relational_expr_dump_test(const std::string& test_name, const std::vector<Token>& tokens)
+{
+	std::cout << "=== Dump Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_relational_expr();
+		if (expr)
+		{
+			std::cout << "[PASS] AST 구조:\n";
+			expr->dump(std::cout, 0);
+			delete expr;
+		}
+		else
+		{
+			std::cout << "[FAIL] 반환된 AST가 null\n";
+		}
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[FAIL] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+inline void run_relational_expr_to_string_test(const std::string& test_name, const std::vector<Token>& tokens, const std::string& expected)
+{
+	std::cout << "=== to_string Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_relational_expr();
+		if (!expr)
+		{
+			std::cout << "[FAIL] AST가 null\n";
+			return;
+		}
+		std::string result = expr->to_string();
+		std::cout << "- 기대값: " << expected << ", 실제값: " << result << "\n";
+		delete expr;
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[FAIL] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+inline void test_relational_expr()
+{
+	run_relational_expr_to_string_test("1 < 2", {
+	Token(TokenKind::INT_LITERAL, "1", 1, 1),
+	Token(TokenKind::LESS, "<", 1, 2),
+	Token(TokenKind::INT_LITERAL, "2", 1, 3),
+	Token(TokenKind::END_OF_FILE, "", 1, 4)
+		}, "1 < 2");
+
+	run_relational_expr_to_string_test("3 > 2 + 1", {
+		Token(TokenKind::INT_LITERAL, "3", 1, 1),
+		Token(TokenKind::GREATER, ">", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::PLUS, "+", 1, 4),
+		Token(TokenKind::INT_LITERAL, "1", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		}, "3 > 2 + 1");
+
+	run_relational_expr_to_string_test("5 + 2 >= 7", {
+		Token(TokenKind::INT_LITERAL, "5", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::GREATER_EQUAL, ">=", 1, 4),
+		Token(TokenKind::INT_LITERAL, "7", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		}, "5 + 2 >= 7");
+
+	run_relational_expr_to_string_test("1 + 2 < 3 * 4", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::INT_LITERAL, "2", 1, 3),
+		Token(TokenKind::LESS, "<", 1, 4),
+		Token(TokenKind::INT_LITERAL, "3", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::INT_LITERAL, "4", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		}, "1 + 2 < 3 * 4");
+
+	run_relational_expr_to_string_test("a <= b", {
+		Token(TokenKind::IDENTIFIER, "a", 1, 1),
+		Token(TokenKind::LESS_EQUAL, "<=", 1, 2),
+		Token(TokenKind::IDENTIFIER, "b", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		}, "a <= b");
+
+	run_relational_expr_to_string_test("a + b >= c * d", {
+		Token(TokenKind::IDENTIFIER, "a", 1, 1),
+		Token(TokenKind::PLUS, "+", 1, 2),
+		Token(TokenKind::IDENTIFIER, "b", 1, 3),
+		Token(TokenKind::GREATER_EQUAL, ">=", 1, 4),
+		Token(TokenKind::IDENTIFIER, "c", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::IDENTIFIER, "d", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		}, "a + b >= c * d");
+
+	run_relational_expr_to_string_test("3 * 3 > 5 + 2", {
+		Token(TokenKind::INT_LITERAL, "3", 1, 1),
+		Token(TokenKind::MUL, "*", 1, 2),
+		Token(TokenKind::INT_LITERAL, "3", 1, 3),
+		Token(TokenKind::GREATER, ">", 1, 4),
+		Token(TokenKind::INT_LITERAL, "5", 1, 5),
+		Token(TokenKind::PLUS, "+", 1, 6),
+		Token(TokenKind::INT_LITERAL, "2", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		}, "3 * 3 > 5 + 2");
+
+	run_relational_expr_to_string_test("(((1))) < ((2))", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::LPAREN, "(", 1, 2),
+		Token(TokenKind::LPAREN, "(", 1, 3),
+		Token(TokenKind::INT_LITERAL, "1", 1, 4),
+		Token(TokenKind::RPAREN, ")", 1, 5),
+		Token(TokenKind::RPAREN, ")", 1, 6),
+		Token(TokenKind::RPAREN, ")", 1, 7),
+		Token(TokenKind::LESS, "<", 1, 8),
+		Token(TokenKind::LPAREN, "(", 1, 9),
+		Token(TokenKind::LPAREN, "(", 1, 10),
+		Token(TokenKind::INT_LITERAL, "2", 1, 11),
+		Token(TokenKind::RPAREN, ")", 1, 12),
+		Token(TokenKind::RPAREN, ")", 1, 13),
+		Token(TokenKind::END_OF_FILE, "", 1, 14)
+		}, "1 < 2");
+
+	run_relational_expr_to_string_test("x * y <= 100", {
+		Token(TokenKind::IDENTIFIER, "x", 1, 1),
+		Token(TokenKind::MUL, "*", 1, 2),
+		Token(TokenKind::IDENTIFIER, "y", 1, 3),
+		Token(TokenKind::LESS_EQUAL, "<=", 1, 4),
+		Token(TokenKind::INT_LITERAL, "100", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		}, "x * y <= 100");
+
+	run_relational_expr_to_string_test("5 <= 5 <= 5", {
+		Token(TokenKind::INT_LITERAL, "5", 1, 1),
+		Token(TokenKind::LESS_EQUAL, "<=", 1, 2),
+		Token(TokenKind::INT_LITERAL, "5", 1, 3),
+		Token(TokenKind::LESS_EQUAL, "<=", 1, 4),
+		Token(TokenKind::INT_LITERAL, "5", 1, 5),
+		Token(TokenKind::END_OF_FILE, "", 1, 6)
+		}, "5 <= 5 <= 5");
+
+
+	run_relational_expr_dump_test("오른쪽 피연산자 없음", {
+	Token(TokenKind::INT_LITERAL, "1", 1, 1),
+	Token(TokenKind::LESS, "<", 1, 2),
+	Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_relational_expr_dump_test("왼쪽 피연산자 없음", {
+		Token(TokenKind::LESS, "<", 1, 1),
+		Token(TokenKind::INT_LITERAL, "1", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_relational_expr_dump_test("연속 연산자 <<", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::LESS, "<", 1, 2),
+		Token(TokenKind::LESS, "<", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_relational_expr_dump_test("비정상 토큰 시작", {
+		Token(TokenKind::COMMA, ",", 1, 1),
+		Token(TokenKind::LESS, "<", 1, 2),
+		Token(TokenKind::INT_LITERAL, "3", 1, 3),
+		Token(TokenKind::END_OF_FILE, "", 1, 4)
+		});
+
+	run_relational_expr_dump_test("연산자 뒤 괄호 열고 닫지 않음", {
+		Token(TokenKind::INT_LITERAL, "1", 1, 1),
+		Token(TokenKind::GREATER, ">", 1, 2),
+		Token(TokenKind::LPAREN, "(", 1, 3),
+		Token(TokenKind::INT_LITERAL, "2", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+	run_relational_expr_dump_test("좌측 식 없음", {
+		Token(TokenKind::LESS_EQUAL, "<=", 1, 1),
+		Token(TokenKind::INT_LITERAL, "5", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+	run_relational_expr_dump_test("단항 연산자만 존재", {
+		Token(TokenKind::MINUS, "-", 1, 1),
+		Token(TokenKind::END_OF_FILE, "", 1, 2)
+		});
+
+	run_relational_expr_dump_test("괄호만 존재", {
+		Token(TokenKind::LPAREN, "(", 1, 1),
+		Token(TokenKind::RPAREN, ")", 1, 2),
+		Token(TokenKind::END_OF_FILE, "", 1, 3)
+		});
+
+
+	run_relational_expr_dump_test("중간 피연산자 누락", {
+		Token(TokenKind::INT_LITERAL, "5", 1, 1),
+		Token(TokenKind::GREATER_EQUAL, ">=", 1, 2),
+		Token(TokenKind::GREATER_EQUAL, ">=", 1, 3),
+		Token(TokenKind::INT_LITERAL, "5", 1, 4),
+		Token(TokenKind::END_OF_FILE, "", 1, 5)
+		});
+
+}
+
+inline void run_full_expr_test(const std::string& test_name, const std::vector<Token>& tokens)
+{
+	std::cout << "=== Full Expression Test: " << test_name << " ===\n";
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+
+	try
+	{
+		Expr* expr = parser.parse_expr();  
+		if (!expr)
+		{
+			std::cout << "[FAIL] AST가 null\n";
+			return;
+		}
+		std::cout << "[PASS] AST 구조:\n";
+		expr->dump(std::cout, 0);
+		delete expr;
+	}
+	catch (const ParserException& e)
+	{
+		std::cout << "[FAIL] 예외 발생: " << e.what() << "\n";
+	}
+}
+
+inline void test_full_expr()
+{
+	run_full_expr_test("a = 1 + 2 * 3", {
+		Token(TokenKind::IDENTIFIER, "a", 1, 1),
+		Token(TokenKind::ASSIGN, "=", 1, 2),
+		Token(TokenKind::INT_LITERAL, "1", 1, 3),
+		Token(TokenKind::PLUS, "+", 1, 4),
+		Token(TokenKind::INT_LITERAL, "2", 1, 5),
+		Token(TokenKind::MUL, "*", 1, 6),
+		Token(TokenKind::INT_LITERAL, "3", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		});
+
+	run_full_expr_test("x = (y + 2) * 4", {
+		Token(TokenKind::IDENTIFIER, "x", 1, 1),
+		Token(TokenKind::ASSIGN, "=", 1, 2),
+		Token(TokenKind::LPAREN, "(", 1, 3),
+		Token(TokenKind::IDENTIFIER, "y", 1, 4),
+		Token(TokenKind::PLUS, "+", 1, 5),
+		Token(TokenKind::INT_LITERAL, "2", 1, 6),
+		Token(TokenKind::RPAREN, ")", 1, 7),
+		Token(TokenKind::MUL, "*", 1, 8),
+		Token(TokenKind::INT_LITERAL, "4", 1, 9),
+		Token(TokenKind::END_OF_FILE, "", 1, 10)
+		});
+
+	run_full_expr_test("result = a && b || c", {
+		Token(TokenKind::IDENTIFIER, "result", 1, 1),
+		Token(TokenKind::ASSIGN, "=", 1, 2),
+		Token(TokenKind::IDENTIFIER, "a", 1, 3),
+		Token(TokenKind::AND, "&&", 1, 4),
+		Token(TokenKind::IDENTIFIER, "b", 1, 5),
+		Token(TokenKind::OR, "||", 1, 6),
+		Token(TokenKind::IDENTIFIER, "c", 1, 7),
+		Token(TokenKind::END_OF_FILE, "", 1, 8)
+		});
+
+	run_full_expr_test("flag = (x > 3) && (y < 5)", {
+		Token(TokenKind::IDENTIFIER, "flag", 1, 1),
+		Token(TokenKind::ASSIGN, "=", 1, 2),
+		Token(TokenKind::LPAREN, "(", 1, 3),
+		Token(TokenKind::IDENTIFIER, "x", 1, 4),
+		Token(TokenKind::GREATER, ">", 1, 5),
+		Token(TokenKind::INT_LITERAL, "3", 1, 6),
+		Token(TokenKind::RPAREN, ")", 1, 7),
+		Token(TokenKind::AND, "&&", 1, 8),
+		Token(TokenKind::LPAREN, "(", 1, 9),
+		Token(TokenKind::IDENTIFIER, "y", 1, 10),
+		Token(TokenKind::LESS, "<", 1, 11),
+		Token(TokenKind::INT_LITERAL, "5", 1, 12),
+		Token(TokenKind::RPAREN, ")", 1, 13),
+		Token(TokenKind::END_OF_FILE, "", 1, 14)
+		});
+}

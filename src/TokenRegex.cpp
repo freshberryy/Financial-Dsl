@@ -14,13 +14,12 @@ void init_regex_map()
     regex_map[TokenKind::KW_IF] = regex(R"(\bif\b)");
     regex_map[TokenKind::KW_VOID] = regex(R"(\bvoid\b)");
     regex_map[TokenKind::KW_ELSE] = regex(R"(\belse\b)");
-    regex_map[TokenKind::KW_IF_ELSE] = regex(R"(\bif_else\b)"); 
+    regex_map[TokenKind::KW_ELSE_IF] = regex(R"(\belse_if\b)");
     regex_map[TokenKind::KW_FOR] = regex(R"(\bfor\b)");
     regex_map[TokenKind::KW_WHILE] = regex(R"(\bwhile\b)");
     regex_map[TokenKind::KW_RETURN] = regex(R"(\breturn\b)");
     regex_map[TokenKind::KW_BREAK] = regex(R"(\bbreak\b)");
     regex_map[TokenKind::KW_CONTINUE] = regex(R"(\bcontinue\b)");
-    regex_map[TokenKind::KW_FUNC] = regex(R"(\bfunc\b)");
 
     // ½Äº°ÀÚ
     regex_map[TokenKind::IDENTIFIER] = regex(R"([a-zA-Z_][a-zA-Z0-9_]*)");

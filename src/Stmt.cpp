@@ -51,10 +51,7 @@ ForStmt::~ForStmt()
 
 BlockStmt::~BlockStmt()
 {
-	for (Stmt* s : stmts)
-	{
-		delete s;
-	}
+	
 }
 
 void BlockStmt::add_stmt(Stmt* stmt)
@@ -151,21 +148,25 @@ static void print_indent(ostream& os, int indent)
 void ExprStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "ExprStmt\n";
+	os << "ExprStmt: " << (expr ? expr->to_string() : "") << "\n";
 	if (expr) expr->dump(os, indent + 2);
 }
 
 void VarDeclStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "VarDeclStmt: " << type->to_string() << " " << name << "\n";
+	os << "VarDeclStmt: " << type->to_string() << " " << name;
+	if (init) os << " = " << init->to_string();
+	os << "\n";
 	if (init) init->dump(os, indent + 2);
 }
 
 void ReturnStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "ReturnStmt\n";
+	os << "ReturnStmt";
+	if (expr) os << ": " << expr->to_string();
+	os << "\n";
 	if (expr) expr->dump(os, indent + 2);
 }
 
@@ -185,9 +186,11 @@ void IfStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
 	os << "IfStmt\n";
+
 	print_indent(os, indent + 2);
-	os << "Condition:\n";
+	os << "Condition: " << condition->to_string() << "\n";
 	condition->dump(os, indent + 4);
+
 	print_indent(os, indent + 2);
 	os << "Then:\n";
 	then_branch->dump(os, indent + 4);
@@ -195,10 +198,12 @@ void IfStmt::dump(ostream& os, int indent) const
 	for (const auto& [cond, block] : else_if_branches)
 	{
 		print_indent(os, indent + 2);
-		os << "ElseIf:\n";
+		os << "ElseIf\n";
+
 		print_indent(os, indent + 4);
-		os << "Condition:\n";
+		os << "Condition: " << cond->to_string() << "\n";
 		cond->dump(os, indent + 6);
+
 		print_indent(os, indent + 4);
 		os << "Block:\n";
 		block->dump(os, indent + 6);
@@ -216,9 +221,11 @@ void WhileStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
 	os << "WhileStmt\n";
+
 	print_indent(os, indent + 2);
-	os << "Condition:\n";
+	os << "Condition: " << condition->to_string() << "\n";
 	condition->dump(os, indent + 4);
+
 	print_indent(os, indent + 2);
 	os << "Body:\n";
 	body->dump(os, indent + 4);
@@ -228,24 +235,26 @@ void ForStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
 	os << "ForStmt\n";
+
 	if (init)
 	{
 		print_indent(os, indent + 2);
-		os << "Init:\n";
+		os << "Init: " << init->to_string() << "\n";
 		init->dump(os, indent + 4);
 	}
 	if (cond)
 	{
 		print_indent(os, indent + 2);
-		os << "Condition:\n";
+		os << "Condition: " << cond->to_string() << "\n";
 		cond->dump(os, indent + 4);
 	}
 	if (post)
 	{
 		print_indent(os, indent + 2);
-		os << "Post:\n";
+		os << "Post: " << post->to_string() << "\n";
 		post->dump(os, indent + 4);
 	}
+
 	print_indent(os, indent + 2);
 	os << "Body:\n";
 	body->dump(os, indent + 4);
@@ -265,8 +274,10 @@ void FuncDeclStmt::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
 	os << "FuncDeclStmt\n";
+
 	print_indent(os, indent + 2);
 	os << "Prototype: " << prototype->to_string() << "\n";
+
 	print_indent(os, indent + 2);
 	os << "Body:\n";
 	body->dump(os, indent + 4);

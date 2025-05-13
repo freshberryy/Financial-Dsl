@@ -9,20 +9,17 @@ Parser::Parser(TokenStream* ts, Logger lg) :ts(ts), logger(lg)
 	}
 }
 
-ASTNode* Parser::parse()
-{
-
-	return parse_program();
-}
 
 ASTNode* Parser::parse_program()
 {
+	int line = ts->peek().line, col = ts->peek().col;
+
+	vector<Stmt*> stmts;
 	while (!ts->eof())
 	{
-		ts->next();
-		continue;
+		stmts.push_back(parse_stmt());
 	}
-	return nullptr;
+	return new BlockStmt(stmts, line, col);
 }
 
 
@@ -441,6 +438,7 @@ Stmt* Parser::parse_break_stmt()
 		return new BreakStmt(tk.line, tk.col);
 	}
 
+	logger.log(tk.line, tk.col);
 	throw ParserException("break 구문 오류", tk.line, tk.col);
 }
 
@@ -453,7 +451,7 @@ Stmt* Parser::parse_continue_stmt()
 		expect_semicolon();
 		return new ContinueStmt(tk.line, tk.col);
 	}
-
+	logger.log(tk.line, tk.col);
 	throw ParserException("continue 구문 오류", tk.line, tk.col);
 }
 
@@ -462,8 +460,10 @@ Stmt* Parser::parse_return_stmt()
 	int line = ts->get_line(), col = ts->get_col();
 	if (ts->peek().kind != TokenKind::KW_RETURN)
 	{
+		logger.log(ts->get_line(), ts->get_col());
 		throw ParserException("return 구문 오류", line, col);
 	}
+	ts->next();
 	Expr* expr = nullptr;
 
 	if (ts->peek().kind == TokenKind::SEMICOLON)
@@ -478,7 +478,284 @@ Stmt* Parser::parse_return_stmt()
 	return new ReturnStmt(expr, line, col);
 }
 
-//TODO: 12-12
+Stmt* Parser::parse_if_stmt()
+{
+	int line = ts->peek().line, col = ts->peek().col;
+
+	if (ts->peek().kind != TokenKind::KW_IF)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("if 구문 오류", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	if (ts->peek().kind != TokenKind::LPAREN)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("왼쪽 소괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	Expr* condition = parse_expr();
+	if (ts->peek().kind != TokenKind::RPAREN)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("오른쪽 소괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	BlockStmt* then_branch = parse_block_stmt();
+	vector<pair<Expr*, BlockStmt*>>else_if_branches;
+	if (ts->peek().kind == TokenKind::KW_ELSE_IF)
+	{
+		while (ts->peek().kind == TokenKind::KW_ELSE_IF)
+		{
+			ts->next();
+			if (ts->peek().kind != TokenKind::LPAREN)
+			{
+				logger.log(ts->get_line(), ts->get_col());
+				throw ParserException("왼쪽 소괄호 누락", ts->get_line(), ts->get_col());
+			}
+			Expr* con = parse_expr();
+			BlockStmt* blo = parse_block_stmt();
+			else_if_branches.emplace_back(con, blo);
+		}
+	}
+	
+	BlockStmt* else_branch = nullptr;
+	if (ts->peek().kind == TokenKind::KW_ELSE)
+	{
+		ts->next();
+		else_branch = parse_block_stmt();
+	}
+	return new IfStmt(condition, then_branch, else_if_branches, else_branch, line, col);
+}
+
+Stmt* Parser::parse_while_stmt()
+{
+	int line = ts->peek().line, col = ts->peek().col;
+	if (ts->peek().kind != TokenKind::KW_WHILE)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("while 구문 오류", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	if (ts->peek().kind != TokenKind::LPAREN)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("왼쪽 소괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	Expr* condition = parse_expr();
+	if (ts->peek().kind != TokenKind::RPAREN)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("오른쪽 소괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	BlockStmt* body = parse_block_stmt();
+
+	return new WhileStmt(condition, body, line, col);
+}
+
+Stmt* Parser::parse_for_stmt()
+{
+	int line = ts->peek().line, col = ts->peek().col;
+	if (ts->peek().kind != TokenKind::KW_FOR)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("for 구문 오류", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	if (ts->peek().kind != TokenKind::LPAREN)
+	{
+		throw ParserException("왼쪽 소괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	Expr* init;
+	try
+	{
+		init = parse_expr();
+	}
+	catch (const exception&)
+	{
+		init = nullptr;
+	}
+	if (ts->peek().kind != TokenKind::SEMICOLON)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("조건식 내 세미콜론 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	Expr* cond;
+	try
+	{
+		cond = parse_expr();
+	}
+	catch (const exception&)
+	{
+		cond = nullptr;
+	}
+	if (ts->peek().kind != TokenKind::SEMICOLON)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("조건식 내 세미콜론 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	Expr* post;
+	try
+	{
+		post = parse_expr();
+	}
+	catch (const exception&)
+	{
+		post = nullptr;
+	}
+	if (ts->peek().kind != TokenKind::RPAREN)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("오른쪽 괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	BlockStmt* body = parse_block_stmt();
+
+	return new ForStmt(init, cond, post, body, line, col);
+}
+
+BlockStmt* Parser::parse_block_stmt()
+{
+	int line = ts->peek().line, col = ts->peek().col;
+	vector<Stmt*> stmts;
+	if (ts->peek().kind != TokenKind::LBRACE)
+	{
+		logger.log(ts->get_line(), ts->get_col());
+		throw ParserException("왼쪽 중괄호 누락", ts->get_line(), ts->get_col());
+	}
+	ts->next();
+	while (ts->peek().kind != TokenKind::RBRACE)
+	{
+		if (ts->eof())
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("오른쪽 중괄호 누락", ts->get_line(), ts->get_col());
+		}
+		stmts.emplace_back(parse_stmt());
+	}
+	ts->next();
+	return new BlockStmt(stmts, line, col);
+}
+
+Stmt* Parser::parse_func_decl_stmt()
+{
+	int line = ts->peek().line, col = ts->peek().col;
+	//타입
+	Type* type = parse_type();
+
+	//이름
+	string name = ts->peek().lexeme;
+	ts->next();
+
+	//파라미터  -- 왼쪽 괄호까지 디스패처가 확인
+	vector<Param*> params;
+	ts->next();
+	while (ts->peek().kind != TokenKind::RPAREN)
+	{
+		//파라미터 타입
+		Type* p_type = parse_type();
+		
+		//파라미터 이름
+		if (ts->peek().kind != TokenKind::IDENTIFIER)
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("파라미터 이름이 식별자가 아님", ts->get_line(), ts->get_col());
+		}
+		string p_name = ts->peek().lexeme;
+		ts->next();
+
+		params.emplace_back(new Param(p_type, p_name, p_type->get_location().first, p_type->get_location().second));
+
+		if (ts->peek().kind == TokenKind::COMMA)
+		{
+			ts->next();
+			if (ts->peek().kind == TokenKind::RPAREN)
+			{
+				logger.log(ts->get_line(), ts->get_col());
+				throw ParserException("파라미터 선언 오류", ts->get_line(), ts->get_col());
+			}
+		}
+		else break;
+	}
+	//루프 탈출->오른쪽 괄호
+	if (ts->peek().kind != TokenKind::RPAREN)
+	{
+		logger.log(line, col);
+		throw ParserException("오른쪽 소괄호 누락", line, col);
+	}
+	ts->next();
+
+	FunctionPrototype* proto = new FunctionPrototype(name, params, type, line, col);
+
+	BlockStmt* body = parse_block_stmt();
+
+	return new FuncDeclStmt(proto, body, line, col);
+}
+
+Stmt* Parser::parse_stmt()
+{
+	TokenKind kind = ts->peek().kind;
+
+	switch (kind)
+	{
+	case TokenKind::KW_INT:
+	case TokenKind::KW_FLOAT:
+	case TokenKind::KW_BOOL:
+	case TokenKind::KW_STRING:
+	case TokenKind::KW_VOID: 
+	{
+		TokenKind next = ts->peek(1).kind;
+
+		if (next == TokenKind::IDENTIFIER)
+		{
+			TokenKind nnext = ts->peek(2).kind;
+			if (nnext == TokenKind::LPAREN)
+			{
+				return parse_func_decl_stmt();
+			}
+			else
+			{
+				return parse_var_decl_stmt();
+			}
+		}
+		else
+		{
+			logger.log(ts->get_line(), ts->get_col());
+			throw ParserException("타입 뒤에 식별자가 아님", ts->get_line(), ts->get_col());
+		}
+	}
+
+	case TokenKind::KW_IF:
+		return parse_if_stmt();
+
+	case TokenKind::KW_WHILE:
+		return parse_while_stmt();
+
+	case TokenKind::KW_FOR:
+		return parse_for_stmt();
+
+	case TokenKind::KW_BREAK:
+		return parse_break_stmt();
+
+	case TokenKind::KW_CONTINUE:
+		return parse_continue_stmt();
+
+	case TokenKind::KW_RETURN:
+		return parse_return_stmt();
+
+	case TokenKind::LBRACE:
+		return parse_block_stmt();
+
+	default:
+		return parse_expr_stmt();  
+	}
+}
+
 
 //util
 const Token& Parser::expect_semicolon()

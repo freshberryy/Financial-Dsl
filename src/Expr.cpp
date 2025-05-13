@@ -178,44 +178,44 @@ static void print_indent(ostream& os, int indent)
 void IntLiteralExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "IntLiteralExpr: " << value << "\n";
+	os << "IntLiteralExpr: " << to_string() << "\n";
 }
 
 void FloatLiteralExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "FloatLiteralExpr: " << value << "\n";
+	os << "FloatLiteralExpr: " << to_string() << "\n";
 }
 
 void StringLiteralExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "StringLiteralExpr: \"" << value << "\"\n";
+	os << "StringLiteralExpr: " << to_string() << "\n";
 }
 
 void BoolLiteralExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "BoolLiteralExpr: " << (value == "true" ? "true" : "false") << "\n";
+	os << "BoolLiteralExpr: " << to_string() << "\n";
 }
 
 void IdentifierExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "IdentifierExpr: " << name << "\n";
+	os << "IdentifierExpr: " << to_string() << "\n";
 }
 
 void UnaryExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "UnaryExpr: " << op << "\n";
+	os << "UnaryExpr: " << to_string() << "\n";
 	operand->dump(os, indent + 2);
 }
 
 void BinaryExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "BinaryExpr: " << op << "\n";
+	os << "BinaryExpr: " << to_string() << "\n";
 	lhs->dump(os, indent + 2);
 	rhs->dump(os, indent + 2);
 }
@@ -223,7 +223,7 @@ void BinaryExpr::dump(ostream& os, int indent) const
 void AssignExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "AssignExpr\n";
+	os << "AssignExpr: " << to_string() << "\n";
 	lhs->dump(os, indent + 2);
 	rhs->dump(os, indent + 2);
 }
@@ -231,7 +231,7 @@ void AssignExpr::dump(ostream& os, int indent) const
 void Array1DAccessExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "Array1DAccessExpr\n";
+	os << "Array1DAccessExpr: " << to_string() << "\n";
 	base->dump(os, indent + 2);
 	index->dump(os, indent + 4);
 }
@@ -239,7 +239,7 @@ void Array1DAccessExpr::dump(ostream& os, int indent) const
 void Array2DAccessExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "Array2DAccessExpr\n";
+	os << "Array2DAccessExpr: " << to_string() << "\n";
 	base->dump(os, indent + 2);
 	index1->dump(os, indent + 4);
 	index2->dump(os, indent + 4);
@@ -248,13 +248,20 @@ void Array2DAccessExpr::dump(ostream& os, int indent) const
 void FunctionCallExpr::dump(ostream& os, int indent) const
 {
 	print_indent(os, indent);
-	os << "FunctionCallExpr\n";
+	os << "FunctionCallExpr: " << to_string() << "\n";
 	callee->dump(os, indent + 2);
 	for (auto arg : args)
 	{
 		arg->dump(os, indent + 4);
 	}
 }
+
+void VoidExpr::dump(ostream& os, int indent) const
+{
+	print_indent(os, indent);
+	os << "VoidExpr: " << to_string() << "\n";
+}
+
 
 bool IntLiteralExpr::can_be_lhs() const
 {
@@ -322,11 +329,7 @@ string VoidExpr::get_type() const
 	return "void";
 }
 
-void VoidExpr::dump(ostream& os, int indent) const
-{
-	os << setw(indent) << ' ';
-	os << "VoidExpr (void)\n";
-}
+
 
 bool VoidExpr::can_be_lhs() const
 {

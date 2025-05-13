@@ -720,3 +720,774 @@ inline void test_full_expr()
 		Token(TokenKind::END_OF_FILE, "", 1, 14)
 		});
 }
+
+inline void test_if_case1()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 3));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 4));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 5));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 2, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 5));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 6));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== IF CASE 1 ===\n";
+	Stmt* stmt = parser.parse_if_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_if_case2()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 3));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 4));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 5));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 2, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 5));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 6));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::KW_ELSE, "else", 3, 3));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 3, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 4, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 4, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "2", 4, 5));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 4, 6));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 5, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 5, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== IF CASE 2 ===\n";
+	Stmt* stmt = parser.parse_if_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_if_case3()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 5));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 6));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 2, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::KW_ELSE_IF, "else if", 3, 3));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 3, 12));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 3, 13));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 3, 14));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 3, 16));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 4, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 4, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "2", 4, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 4, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 5, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 5, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== IF CASE 3 ===\n";
+	Stmt* stmt = parser.parse_if_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_if_case4()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 5));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 6));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 2, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::KW_ELSE_IF, "else if", 3, 3));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 3, 12));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 3, 13));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 3, 14));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 3, 16));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 4, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 4, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "2", 4, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 4, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 5, 1));
+	tokens.push_back(Token(TokenKind::KW_ELSE, "else", 5, 3));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 5, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 6, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 6, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "3", 6, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 6, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 7, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 7, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== IF CASE 4 ===\n";
+	Stmt* stmt = parser.parse_if_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_if_case5()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 5));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 6));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 8));
+
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 2, 2));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 2, 5));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 2, 6));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 2, 7));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 2, 9));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 3, 3));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 3, 5));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 3, 7));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 3, 8));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 4, 2));
+
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 5, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 5, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== IF CASE 5 ===\n";
+	Stmt* stmt = parser.parse_if_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+
+inline void test_if()
+{
+	test_if_case1();
+	test_if_case2();
+	test_if_case3();
+	test_if_case4();
+	test_if_case5();
+}
+
+inline void test_while_case1()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 8));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 9));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 11));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== WHILE CASE 1 ===\n";
+	Stmt* stmt = parser.parse_while_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_while_case2()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 8));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 9));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 11));
+	tokens.push_back(Token(TokenKind::KW_BREAK, "break", 2, 2));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== WHILE CASE 2 ===\n";
+	Stmt* stmt = parser.parse_while_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_while_case3()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 8));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 9));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 11));
+	tokens.push_back(Token(TokenKind::KW_CONTINUE, "continue", 2, 2));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 10));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== WHILE CASE 3 ===\n";
+	Stmt* stmt = parser.parse_while_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_while_case4()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 1, 8));
+	tokens.push_back(Token(TokenKind::AND, "&&", 1, 9));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 1, 12));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 13));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 15));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 2, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 4));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== WHILE CASE 4 ===\n";
+	Stmt* stmt = parser.parse_while_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_while_case5()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 7));
+	tokens.push_back(Token(TokenKind::BOOL_LITERAL, "true", 1, 8));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 12));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 14));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== WHILE CASE 5 ===\n";
+	Stmt* stmt = parser.parse_while_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_while()
+{
+	test_while_case1();
+	test_while_case2();
+	test_while_case3();
+	test_while_case4();
+	test_while_case5();
+}
+
+inline void test_for_case1()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 5));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 6));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "0", 1, 7));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 9));
+	tokens.push_back(Token(TokenKind::LESS, "<", 1, 10));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "10", 1, 11));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 13));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 14));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 15));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 16));
+	tokens.push_back(Token(TokenKind::PLUS, "+", 1, 17));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 1, 18));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 19));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 21));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 1 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_for_case2()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 5));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 6));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "0", 1, 7));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 8));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 9)); // 조건 없음
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 10));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 11));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 12));
+	tokens.push_back(Token(TokenKind::PLUS, "+", 1, 13));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 1, 14));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 15));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 17));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 2 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+
+inline void test_for_case3()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 5));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 6));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "0", 1, 7));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 8));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 9));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 10));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 12));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 3 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_for_case4()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 5));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 6));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 7));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 9));
+	tokens.push_back(Token(TokenKind::PLUS, "+", 1, 10));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 1, 11));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 12));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 14));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 4 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_for_case5()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 5));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 6));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 7));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 9));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 5 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_for_case6()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_FOR, "for", 1, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 5));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 6));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "0", 1, 7));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 9));
+	tokens.push_back(Token(TokenKind::LESS, "<", 1, 10));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "5", 1, 11));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 1, 12));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 13));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 1, 14));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 1, 15));
+	tokens.push_back(Token(TokenKind::PLUS, "+", 1, 16));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 1, 17));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 18));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 20));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "sum", 2, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 6));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "sum", 2, 8));
+	tokens.push_back(Token(TokenKind::PLUS, "+", 2, 12));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "i", 2, 14));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 15));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FOR CASE 6 ===\n";
+	Stmt* stmt = parser.parse_for_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_for()
+{
+	test_for_case1();
+	test_for_case2();
+	test_for_case3();
+	test_for_case4();
+	test_for_case5();
+	test_for_case6();
+}
+
+inline void test_block_case1()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 1));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 1, 2));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 1, 3));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== BLOCK CASE 1 ===\n";
+	BlockStmt* block = parser.parse_block_stmt();
+	block->dump(std::cout, 0);
+	delete block;
+}
+
+inline void test_block_case2()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 2, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 2));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 3));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 4));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== BLOCK CASE 2 ===\n";
+	BlockStmt* block = parser.parse_block_stmt();
+	block->dump(std::cout, 0);
+	delete block;
+}
+
+inline void test_block_case3()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 2, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 2));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 3));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 3, 1));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 3, 2));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "2", 3, 3));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 3, 4));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 4, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 4, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== BLOCK CASE 3 ===\n";
+	BlockStmt* block = parser.parse_block_stmt();
+	block->dump(std::cout, 0);
+	delete block;
+}
+
+inline void test_block_case4()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 1));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 2, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 2, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 2, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 2, 4));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 5));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 4, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 4, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== BLOCK CASE 4 ===\n";
+	BlockStmt* block = parser.parse_block_stmt();
+	block->dump(std::cout, 0);
+	delete block;
+}
+
+inline void test_block_case5()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 1));
+
+	// if (x) { y = 1; }
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 2, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 2, 4));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 2, 5));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 2, 6));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 2, 8));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 3, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 3, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 3, 4));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 3, 5));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 4, 1));
+
+	// while (y) { x = 0; }
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 5, 1));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 5, 7));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 5, 8));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 5, 9));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 5, 11));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 6, 2));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 6, 3));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "0", 6, 4));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 6, 5));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 7, 1));
+
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 8, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 8, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== BLOCK CASE 5 ===\n";
+	BlockStmt* block = parser.parse_block_stmt();
+	block->dump(std::cout, 0);
+	delete block;
+}
+
+inline void test_block()
+{
+	test_block_case1();
+	test_block_case2();
+	test_block_case3();
+	test_block_case4();
+	test_block_case5();
+}
+
+inline void test_func_case1()
+{
+	//파라미터 없음
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_INT, "int", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "f", 1, 5));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 6));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 7));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 9));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 1 (no param) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func_case2()
+{
+	//파라미터 여러 개
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_INT, "int", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "add", 1, 5));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 8));
+	tokens.push_back(Token(TokenKind::KW_INT, "int", 1, 9));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "a", 1, 13));
+	tokens.push_back(Token(TokenKind::COMMA, ",", 1, 14));
+	tokens.push_back(Token(TokenKind::KW_INT, "int", 1, 16));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "b", 1, 20));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 21));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 23));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 2 (multi param) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func_case3()
+{
+	//배열 파라미터
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_VOID, "void", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "process", 1, 6));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 13));
+	tokens.push_back(Token(TokenKind::KW_INT, "int", 1, 14));
+	tokens.push_back(Token(TokenKind::LBRACKET, "[", 1, 17));
+	tokens.push_back(Token(TokenKind::RBRACKET, "]", 1, 18));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "arr", 1, 20));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 23));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 25));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 3 (array param) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func_case4()
+{
+	//빈 본문
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_BOOL, "bool", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "check", 1, 6));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 11));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 12));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 14));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 2, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 2, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 4 (empty body) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func_case5()
+{
+	//리턴
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_STRING, "string", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "hello", 1, 8));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 13));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 14));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 16));
+	tokens.push_back(Token(TokenKind::KW_RETURN, "return", 2, 2));
+	tokens.push_back(Token(TokenKind::STRING_LITERAL, "\"hi\"", 2, 9));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 2, 13));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 3, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 3, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 5 (return statement) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func_case6()
+{
+	std::vector<Token> tokens;
+	tokens.push_back(Token(TokenKind::KW_VOID, "void", 1, 1));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "nested", 1, 6));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 1, 12));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 1, 13));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 1, 15));
+
+	// if (x) { while (y) { z = 1; } }
+	tokens.push_back(Token(TokenKind::KW_IF, "if", 2, 2));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 2, 5));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "x", 2, 6));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 2, 7));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 2, 9));
+	tokens.push_back(Token(TokenKind::KW_WHILE, "while", 3, 3));
+	tokens.push_back(Token(TokenKind::LPAREN, "(", 3, 9));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "y", 3, 10));
+	tokens.push_back(Token(TokenKind::RPAREN, ")", 3, 11));
+	tokens.push_back(Token(TokenKind::LBRACE, "{", 3, 13));
+	tokens.push_back(Token(TokenKind::IDENTIFIER, "z", 4, 4));
+	tokens.push_back(Token(TokenKind::ASSIGN, "=", 4, 5));
+	tokens.push_back(Token(TokenKind::INT_LITERAL, "1", 4, 6));
+	tokens.push_back(Token(TokenKind::SEMICOLON, ";", 4, 7));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 5, 3));
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 6, 2));
+
+	tokens.push_back(Token(TokenKind::RBRACE, "}", 7, 1));
+	tokens.push_back(Token(TokenKind::END_OF_FILE, "", 7, 2));
+
+	TokenStream ts(tokens);
+	Logger logger;
+	Parser parser(&ts, logger);
+	std::cout << "=== FUNC CASE 6 (nested if/while) ===\n";
+	Stmt* stmt = parser.parse_func_decl_stmt();
+	stmt->dump(std::cout, 0);
+	delete stmt;
+}
+
+inline void test_func()
+{
+	test_func_case1();
+	test_func_case2();
+	test_func_case3();
+	test_func_case4();
+	test_func_case5();
+	test_func_case6();
+}
+

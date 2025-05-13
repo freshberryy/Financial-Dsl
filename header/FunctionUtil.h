@@ -14,7 +14,7 @@ class Param;
 class FunctionPrototype : public ASTNode
 {
 public:
-	FunctionPrototype(std::string n, std::vector<Param*>p, Type rt, int line, int col) : ASTNode(line, col), name(n), params(p),  return_type(rt){}
+	FunctionPrototype(std::string n, std::vector<Param*>p, Type *rt, int line, int col) : ASTNode(line, col), name(n), params(p),  return_type(rt){}
 	std::string to_string() const;
 	void dump(std::ostream& os, int indent = 0) const;
 	~FunctionPrototype();
@@ -22,18 +22,18 @@ public:
 private:
 	std::string name;
 	std::vector<Param*> params;
-	Type return_type;
+	Type *return_type;
 };
 
 class Param : public ASTNode
 {
 public:
-	Param(Type t, std::string name, int line, int col):ASTNode(line, col), type(t), name(name){}
+	Param(Type *t, std::string name, int line, int col):ASTNode(line, col), type(t), name(name){}
 
 	std::string to_string() const;
 	void dump(std::ostream& os, int indent = 0) const;
 private:
-	Type type;
+	Type *type;
 	std::string name;
 };
 
@@ -41,7 +41,7 @@ private:
 class FunctionSymbol
 {
 public:
-	FunctionSymbol(FunctionPrototype* p, BlockStmt* b, int s) :proto(p), body(b), scope_depth(s) {}
+	FunctionSymbol(FunctionPrototype* p, BlockStmt* b) :proto(p), body(b) {}
 
 	~FunctionSymbol();
 
@@ -49,5 +49,4 @@ public:
 private:
 	FunctionPrototype* proto;
 	BlockStmt* body;
-	int scope_depth;
 };

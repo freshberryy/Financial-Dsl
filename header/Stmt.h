@@ -180,8 +180,8 @@ private:
 class BlockStmt : public Stmt
 {
 public:
-	BlockStmt(int line, int col)
-		: Stmt(line, col)
+	BlockStmt(std::vector<Stmt*> stmts, int line, int col)
+		: Stmt(line, col), stmts(stmts)
 	{
 		stmts.clear();
 	}

@@ -9,6 +9,7 @@
 #include "Token.h"
 #include "Type.h"
 #include "ParserException.h"
+#include "FunctionUtil.h"
 
 class ProgramNode;
 
@@ -17,7 +18,6 @@ class Parser
 public:
 	Parser(TokenStream* ts, Logger lg);
 
-	ASTNode* parse();
 
 	ASTNode* parse_program();
 
@@ -42,6 +42,12 @@ public:
 	Stmt* parse_break_stmt();
 	Stmt* parse_continue_stmt();
 	Stmt* parse_return_stmt();
+	Stmt* parse_if_stmt();
+	Stmt* parse_while_stmt();
+	Stmt* parse_for_stmt();
+	BlockStmt* parse_block_stmt();
+	Stmt* parse_func_decl_stmt();
+	Stmt* parse_stmt();
 	
 	const Token& expect_semicolon();
 
